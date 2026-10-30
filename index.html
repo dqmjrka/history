@@ -1,413 +1,523 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>История Выживания - Shorts Generator</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
-    }
-
-    body {
-      background-color: #121212;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 15px;
-    }
-
-    /* Вертикальный контейнер 9:16 */
-    .phone-frame {
-      width: 360px;
-      height: 640px;
-      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
-      border-radius: 24px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
-      border: 3px solid #2e3b4e;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Анимированный фон для атмосферы */
-    .bg-animation {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.85) 100%);
-      z-index: 1;
-    }
-
-    .snow-effect {
-      position: absolute;
-      width: 200%;
-      height: 200%;
-      top: -50%;
-      left: -50%;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-      background-size: 24px 24px;
-      animation: drift 12s linear infinite;
-      z-index: 1;
-    }
-
-    @keyframes drift {
-      from { transform: translateY(0) rotate(0deg); }
-      to { transform: translateY(200px) rotate(5deg); }
-    }
-
-    /* Контейнер субтитров */
-    .subtitle-box {
-      position: relative;
-      z-index: 2;
-      width: 88%;
-      text-align: center;
-      padding: 20px 10px;
-      min-height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .subtitle-text {
-      font-size: 1.65rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #ffffff;
-      line-height: 1.3;
-      text-shadow: 
-        0 4px 0 #000,
-        -2px -2px 0 #000,  
-         2px -2px 0 #000,
-        -2px  2px 0 #000,
-         2px  2px 0 #000,
-         0 0 20px rgba(0, 0, 0, 0.9);
-      transition: transform 0.15s ease;
-    }
-
-    .subtitle-text.pop {
-      transform: scale(1.07);
-      color: #ffdd00;
-    }
-
-    .subtitle-text.outro {
-      color: #ff4757;
-      font-size: 1.5rem;
-      animation: pulse 1.2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.06); }
-    }
-
-    /* Прогресс-бар внизу видео */
-    .progress-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 6px;
-      background: #ff4757;
-      width: 0%;
-      z-index: 3;
-      transition: width 0.2s linear;
-    }
-
-    /* Панель управления под экраном */
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 360px;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    button, a.download-btn {
-      flex: 1;
-      padding: 13px 16px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    button:active, a.download-btn:active {
-      transform: scale(0.98);
-    }
-
-    .start-btn {
-      background: #ff4757;
-      color: #fff;
-    }
-
-    .start-btn:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
-
-    .download-btn {
-      background: #2ed573;
-      color: #111;
-      display: none;
-    }
-
-    .status {
-      font-size: 0.85rem;
-      color: #a4b0be;
-      text-align: center;
-      min-height: 20px;
-    }
-
-    select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      background: #1e272e;
-      color: #fff;
-      border: 1px solid #485460;
-      font-size: 0.9rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выживание — Часть 1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+        body {
+            background-color: #0d0d12;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #player-wrapper {
+            position: relative;
+            width: 380px;
+            height: 675px;
+            background: #000;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+            border: 2px solid #222;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 20;
+        }
+        .btn {
+            background: #e50914;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+            transition: transform 0.15s, background 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            background: #ff1e29;
+        }
+        .btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-download {
+            background: #1db954;
+            box-shadow: 0 4px 12px rgba(29, 185, 84, 0.4);
+            display: none;
+        }
+        #status-bar {
+            position: absolute;
+            top: 68px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            z-index: 20;
+            text-shadow: 0 1px 3px #000;
+        }
+        #subtitle-box {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 88%;
+            text-align: center;
+            font-size: 21px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #ffeb3b;
+            text-shadow: 
+                -2px -2px 0 #000,  
+                 2px -2px 0 #000,
+                -2px  2px 0 #000,
+                 2px  2px 0 #000,
+                 0px  4px 10px rgba(0,0,0,0.9);
+            z-index: 15;
+            pointer-events: none;
+            line-height: 1.3;
+        }
+        #outro-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            z-index: 18;
+        }
+        #outro-overlay h2 {
+            font-size: 32px;
+            color: #ff1e29;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        #outro-overlay p {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="phone-frame" id="screen">
-    <div class="snow-effect"></div>
-    <div class="bg-animation"></div>
-    <div class="subtitle-box">
-      <div class="subtitle-text" id="subtitle">НАЖМИ СТАРТ</div>
+<div id="player-wrapper">
+    <div id="ui-layer">
+        <button id="start-btn" class="btn">▶ СТАРТ</button>
+        <button id="download-btn" class="btn btn-download">⬇ СКАЧАТЬ ВИДЕО</button>
     </div>
-    <div class="progress-bar" id="progress"></div>
-  </div>
-
-  <div class="controls">
-    <select id="voiceSelect" title="Выбор голоса ElevenLabs">
-      <option value="pNInz6obpgDQGcFmaJgB">Голос: Adam (Глубокий рассказчик)</option>
-      <option value="TxGEqnHWrfWFTfGW9XjX">Голос: Josh (Молодой / Динамичный)</option>
-      <option value="VR6AewLTigWG4xSOukaG">Голос: Arnold (Напряженный)</option>
-      <option value="ErXwobaYiN019PkySvjV">Голос: Antoni (Чистый / Быстрый)</option>
-    </select>
-
-    <div class="btn-row">
-      <button class="start-btn" id="startBtn">▶ СТАРТ</button>
-      <a class="download-btn" id="downloadBtn" download="survival_story.mp3">⬇ СКАЧАТЬ MP3</a>
+    <div id="status-bar">Нажмите «Старт» для генерации озвучки и запуска</div>
+    <div id="subtitle-box"></div>
+    <div id="outro-overlay">
+        <h2>Часть 2 следует...</h2>
+        <p>Как думаешь, что было в палатке?<br><br><span style="color:#ffeb3b;">Пиши свой ответ в комментариях! 👇</span></p>
     </div>
-    <div class="status" id="statusText">Готово к генерации озвучки (~50 сек)</div>
-  </div>
+</div>
 
-  <script>
-    // Внимание: поскольку ключ был опубликован в открытом доступе, рекомендуем заменить его в личном кабинете ElevenLabs после тестов
-    const API_KEY = "sk_54b84242ac4c007aef5321f971aa9ddb01f045ebe5177c9a";
+<script>
+const ELEVENLABS_API_KEY = "sk_54b84242ac4c007aef5321f971aa9ddb01f045ebe5177c9a";
+const VOICE_ID = "pNInz6obpgDQGcFmaJgB"; // Adam (глубокий рассказчик)
 
-    // Текст первой части (озвучивается голосом, рассчитан примерно на 45-50 секунд)
-    const spokenScript = `Короче, первая серия. Я решил переночевать один в старой лесной избе зимой. Вечером затопил печь, проверил замки и лег спать, всё было как обычно. На следующую ночь я просыпаюсь ровно в три пятнадцать от странного скрежета. Смотрю в окно, а стекло замёрзло, и кто-то снаружи прямо сейчас пальцем выводит по инею слово: ВЫХОДИ. Мне стало жутко не по себе. Я схватил фонарик, побежал на кухню проверить заднюю дверь — она закрыта. Возвращаюсь обратно в комнату, свечу на окно, а там надписи уже нет, и вместо неё дописывается: Я УЖЕ ВНУТРИ. Я резко оборачиваюсь к печке, смотрю на пол, вижу мокрые следы из подвала, которые ведут прямо за мою кровать, заглядываю туда, а там...`;
+// Сценарий на ~50 секунд в стиле примера
+const storySegments = [
+    { text: "Короче, первая серия.", scene: "camp_day" },
+    { text: "Я поехал один в глухой лес с ночевкой, поставил палатку и развел костер.", scene: "camp_day" },
+    { text: "Вечером пожарил еду, лег спать, всё было как обычно.", scene: "camp_night" },
+    { text: "На следующую ночь я просыпаюсь ровно в три часа двенадцать минут от странного хруста.", scene: "clock_312" },
+    { text: "Выглядываю из палатки — костер потух, а на сырой земле вокруг углей палкой нацарапан какой-то текст.", scene: "ground_text_1" },
+    { text: "Пытаюсь прочитать с фонариком, а там написано: УХОДИ.", scene: "ground_text_1" },
+    { text: "Мне стало не по себе. Я схватил телефон, побежал к машине на поляну проверить связь.", scene: "run_trees" },
+    { text: "Связи нет. Возвращаюсь обратно к палатке, свечу на землю...", scene: "run_trees" },
+    { text: "А надписи УХОДИ уже нет, и вместо неё прямо свежей землей дописывается: Я УЖЕ ВНУТРИ.", scene: "ground_text_2" },
+    { text: "Я в панике бегу к ручью, умываюсь ледяной водой, поворачиваю голову к палатке, смотрю, а там...", scene: "tent_shadow" }
+];
 
-    // Финальный байт на комментарии (показывается БЕЗ озвучки)
-    const silentOutro = "2 ЧАСТЬ СКОРО 👀 КАК ДУМАЕШЬ ЧТО ТАМ? ПИШИ ОТВЕТ В КОММЕНТАРИЯХ 👇";
+// Инициализация Three.js (Вертикальный формат 9:16)
+const wrapper = document.getElementById('player-wrapper');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05070a);
+scene.fog = new THREE.FogExp2(0x05070a, 0.08);
 
-    // Разбивка текста на короткие фразы для динамичных субтитров (по 2-4 слова)
-    const chunks = [
-      "Короче, первая серия.",
-      "Я решил переночевать один",
-      "в старой лесной избе зимой.",
-      "Вечером затопил печь,",
-      "проверил замки и лег спать,",
-      "всё было как обычно.",
-      "На следующую ночь",
-      "я просыпаюсь ровно в 3:15",
-      "от странного скрежета.",
-      "Смотрю в окно,",
-      "а стекло замёрзло,",
-      "и кто-то снаружи прямо сейчас",
-      "пальцем выводит по инею слово:",
-      "ВЫХОДИ.",
-      "Мне стало жутко не по себе.",
-      "Я схватил фонарик,",
-      "побежал на кухню",
-      "проверить заднюю дверь —",
-      "она закрыта.",
-      "Возвращаюсь обратно в комнату,",
-      "свечу на окно,",
-      "а там надписи уже нет,",
-      "и вместо неё дописывается:",
-      "Я УЖЕ ВНУТРИ.",
-      "Я резко оборачиваюсь к печке,",
-      "смотрю на пол,",
-      "вижу мокрые следы из подвала,",
-      "которые ведут прямо за кровать,",
-      "заглядываю туда, а там..."
-    ];
+const camera = new THREE.PerspectiveCamera(60, 380 / 675, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(380, 675);
+renderer.shadowMap.enabled = true;
+wrapper.appendChild(renderer.domElement);
 
-    const startBtn = document.getElementById('startBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const subtitleEl = document.getElementById('subtitle');
-    const statusText = document.getElementById('statusText');
-    const progressEl = document.getElementById('progress');
-    const voiceSelect = document.getElementById('voiceSelect');
+// Освещение
+const ambientLight = new THREE.AmbientLight(0x223344, 0.6);
+scene.add(ambientLight);
 
-    let audioPlayer = new Audio();
-    let cachedAudioUrl = null;
-    let lastSelectedVoice = null;
-    let subtitleInterval = null;
+const fireLight = new THREE.PointLight(0xff6600, 2, 12);
+fireLight.position.set(0, 0.8, 0);
+scene.add(fireLight);
 
-    startBtn.addEventListener('click', async () => {
-      const voiceId = voiceSelect.value;
-      startBtn.disabled = true;
-      subtitleEl.classList.remove('outro');
+const flashLight = new THREE.SpotLight(0xffffff, 0, 20, Math.PI / 6, 0.5);
+flashLight.position.set(0, 2, 5);
+scene.add(flashLight);
+scene.add(flashLight.target);
 
-      try {
-        // Если аудио еще не сгенерировано или сменили голос — запрашиваем у ElevenLabs
-        if (!cachedAudioUrl || lastSelectedVoice !== voiceId) {
-          statusText.textContent = "Генерация голоса через ElevenLabs...";
-          subtitleEl.textContent = "ЗАГРУЗКА...";
+// Земля
+const groundGeo = new THREE.PlaneGeometry(50, 50);
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a2418, roughness: 0.9 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
 
-          const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-            method: 'POST',
-            headers: {
-              'Accept': 'audio/mpeg',
-              'Content-Type': 'application/json',
-              'xi-api-key': API_KEY
-            },
-            body: JSON.stringify({
-              text: spokenScript,
-              model_id: "eleven_multilingual_v2",
-              voice_settings: {
-                stability: 0.45,
-                similarity_boost: 0.8,
-                style: 0.35,
-                use_speaker_boost: true
-              }
-            })
-          });
+// 3D Модель Палатки
+const tentGroup = new THREE.Group();
+const tentGeo = new THREE.ConeGeometry(1.6, 2.2, 4);
+const tentMat = new THREE.MeshStandardMaterial({ color: 0xcc5500, roughness: 0.7 });
+const tentMesh = new THREE.Mesh(tentGeo, tentMat);
+tentMesh.position.y = 1.1;
+tentMesh.rotation.y = Math.PI / 4;
+tentGroup.add(tentMesh);
+tentGroup.position.set(0, 0, -2.5);
+scene.add(tentGroup);
 
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.detail?.message || `Ошибка API: ${response.status}`);
-          }
+// Тень внутри палатки (для финала)
+const shadowFigureGeo = new THREE.CylinderGeometry(0.25, 0.35, 1.4, 12);
+const shadowFigureMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const shadowFigure = new THREE.Mesh(shadowFigureGeo, shadowFigureMat);
+shadowFigure.position.set(0, 0.8, -1.8);
+shadowFigure.visible = false;
+scene.add(shadowFigure);
 
-          const blob = await response.blob();
-          if (cachedAudioUrl) URL.revokeObjectURL(cachedAudioUrl);
-          cachedAudioUrl = URL.createObjectURL(blob);
-          lastSelectedVoice = voiceId;
+// 3D Модель Костра
+const fireGroup = new THREE.Group();
+for (let i = 0; i < 4; i++) {
+    const logGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.9, 8);
+    const logMat = new THREE.MeshStandardMaterial({ color: 0x3d2314 });
+    const log = new THREE.Mesh(logGeo, logMat);
+    log.rotation.z = Math.PI / 2;
+    log.rotation.y = (i * Math.PI) / 4;
+    log.position.y = 0.08;
+    fireGroup.add(log);
+}
+const flameGeo = new THREE.ConeGeometry(0.35, 0.8, 6);
+const flameMat = new THREE.MeshBasicMaterial({ color: 0xff5500 });
+const flame = new THREE.Mesh(flameGeo, flameMat);
+flame.position.y = 0.4;
+fireGroup.add(flame);
+scene.add(fireGroup);
 
-          downloadBtn.href = cachedAudioUrl;
-          downloadBtn.style.display = "inline-block";
-        }
+// 3D Деревья вокруг
+const trees = [];
+for (let i = 0; i < 22; i++) {
+    const tree = new THREE.Group();
+    const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.12, 0.18, 1.5, 7),
+        new THREE.MeshStandardMaterial({ color: 0x2b1d0e })
+    );
+    trunk.position.y = 0.75;
+    const leaves = new THREE.Mesh(
+        new THREE.ConeGeometry(0.9, 3, 7),
+        new THREE.MeshStandardMaterial({ color: 0x0d2611 })
+    );
+    leaves.position.y = 2.5;
+    tree.add(trunk, leaves);
 
-        // Запуск воспроизведения и синхронизации субтитров
-        audioPlayer.src = cachedAudioUrl;
-        await audioPlayer.play();
-        statusText.textContent = "Воспроизведение истории...";
-        runSubtitlesSync();
+    const angle = (i / 22) * Math.PI * 2;
+    const radius = 4.5 + Math.random() * 5;
+    tree.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius - 1);
+    scene.add(tree);
+    trees.push(tree);
+}
 
-      } catch (err) {
-        console.error(err);
-        statusText.textContent = "Ошибка ElevenLabs (" + err.message + "). Включен резервный синтезатор.";
-        runFallbackSpeech();
-      }
+// 3D Надпись на земле (через динамическую текстуру Canvas)
+const textCanvas = document.createElement('canvas');
+textCanvas.width = 512;
+textCanvas.height = 256;
+const tCtx = textCanvas.getContext('2d');
+const textTexture = new THREE.CanvasTexture(textCanvas);
+
+const groundTextPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.2, 1.6),
+    new THREE.MeshBasicMaterial({ map: textTexture, transparent: true })
+);
+groundTextPlane.rotation.x = -Math.PI / 2;
+groundTextPlane.position.set(0, 0.02, 1.1);
+scene.add(groundTextPlane);
+
+function drawGroundText(msg, color = "#d9c2a3") {
+    tCtx.clearRect(0, 0, 512, 256);
+    if (!msg) {
+        textTexture.needsUpdate = true;
+        return;
+    }
+    tCtx.font = "bold 64px Courier New";
+    tCtx.fillStyle = color;
+    tCtx.textAlign = "center";
+    tCtx.textBaseline = "middle";
+    tCtx.fillText(msg, 256, 128);
+    textTexture.needsUpdate = true;
+}
+
+// Управление сценами
+let currentSceneMode = "camp_day";
+let clockTime = 0;
+
+function applySceneState(mode) {
+    currentSceneMode = mode;
+    shadowFigure.visible = false;
+
+    if (mode === "camp_day") {
+        scene.background.setHex(0x1e2f38);
+        ambientLight.intensity = 1.1;
+        flame.visible = true;
+        fireLight.intensity = 2;
+        flashLight.intensity = 0;
+        drawGroundText("");
+    } else if (mode === "camp_night") {
+        scene.background.setHex(0x040609);
+        ambientLight.intensity = 0.25;
+        flame.visible = true;
+        fireLight.intensity = 1.6;
+        flashLight.intensity = 0;
+        drawGroundText("");
+    } else if (mode === "clock_312") {
+        scene.background.setHex(0x020305);
+        ambientLight.intensity = 0.15;
+        flame.visible = false;
+        fireLight.intensity = 0;
+        flashLight.intensity = 0.8;
+        drawGroundText("03:12", "#ff2222");
+    } else if (mode === "ground_text_1") {
+        flame.visible = false;
+        fireLight.intensity = 0;
+        flashLight.intensity = 2.2;
+        drawGroundText("УХОДИ", "#c2b280");
+    } else if (mode === "run_trees") {
+        flame.visible = false;
+        fireLight.intensity = 0;
+        flashLight.intensity = 2.5;
+        drawGroundText("");
+    } else if (mode === "ground_text_2") {
+        flame.visible = false;
+        fireLight.intensity = 0;
+        flashLight.intensity = 2.5;
+        drawGroundText("Я УЖЕ ВНУТРИ", "#ff1111");
+    } else if (mode === "tent_shadow") {
+        flame.visible = false;
+        fireLight.intensity = 2.8;
+        fireLight.color.setHex(0xff0000);
+        fireLight.position.set(0, 1.2, -2.5);
+        flashLight.intensity = 1.5;
+        shadowFigure.visible = true;
+        drawGroundText("");
+    }
+}
+
+// Цикл 3D-анимации
+function animate() {
+    requestAnimationFrame(animate);
+    clockTime += 0.04;
+
+    if (flame.visible) {
+        flame.scale.y = 0.85 + Math.sin(clockTime * 7) * 0.2;
+        flame.rotation.y += 0.08;
+        fireLight.intensity = 1.6 + Math.sin(clockTime * 10) * 0.4;
+    }
+
+    if (currentSceneMode === "camp_day" || currentSceneMode === "camp_night") {
+        camera.position.set(Math.sin(clockTime * 0.3) * 1.5, 1.8, 4.2);
+        camera.lookAt(0, 0.8, -1);
+    } else if (currentSceneMode === "clock_312" || currentSceneMode === "ground_text_1" || currentSceneMode === "ground_text_2") {
+        camera.position.set(Math.sin(clockTime * 2) * 0.08, 2.3, 2.5);
+        camera.lookAt(0, 0, 1.1);
+        flashLight.target.position.set(Math.sin(clockTime * 3) * 0.2, 0, 1.1);
+    } else if (currentSceneMode === "run_trees") {
+        // Эффект бега и тряски камеры
+        camera.position.set(
+            Math.sin(clockTime * 6) * 0.25,
+            1.5 + Math.abs(Math.cos(clockTime * 8)) * 0.25,
+            3.5
+        );
+        camera.lookAt(Math.sin(clockTime * 2) * 2, 1.2, -4);
+    } else if (currentSceneMode === "tent_shadow") {
+        // Наезд камеры на палатку с силуэтом
+        camera.position.set(Math.sin(clockTime * 12) * 0.04, 1.3, 1.5);
+        camera.lookAt(0, 0.9, -2.2);
+        shadowFigure.scale.y = 1 + Math.sin(clockTime * 4) * 0.08;
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
+
+// Аудио и Запись видео
+const startBtn = document.getElementById('start-btn');
+const downloadBtn = document.getElementById('download-btn');
+const statusBar = document.getElementById('status-bar');
+const subtitleBox = document.getElementById('subtitle-box');
+const outroOverlay = document.getElementById('outro-overlay');
+
+let audioCtx;
+let destStream;
+let mediaRecorder;
+let recordedChunks = [];
+
+async function fetchElevenLabsAudio(text) {
+    const url = `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            text: text,
+            model_id: "eleven_multilingual_v2",
+            voice_settings: { stability: 0.45, similarity_boost: 0.8 }
+        })
     });
+    if (!response.ok) throw new Error("API Limit or Key Error");
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuffer);
+}
 
-    function runSubtitlesSync() {
-      clearInterval(subtitleInterval);
+function playAudioBuffer(buffer) {
+    return new Promise((resolve) => {
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.connect(destStream);
+        source.onended = resolve;
+        source.start(0);
+    });
+}
 
-      // Считаем вес каждой фразы по количеству символов для ровной синхронизации с голосом
-      const totalChars = chunks.reduce((acc, str) => acc + str.length, 0);
-      let cumulativeWeights = [];
-      let sum = 0;
-      for (const c of chunks) {
-        sum += c.length;
-        cumulativeWeights.push(sum / totalChars);
-      }
-
-      let lastIndex = -1;
-
-      subtitleInterval = setInterval(() => {
-        if (!audioPlayer.duration) return;
-
-        const currentProgress = audioPlayer.currentTime / audioPlayer.duration;
-        progressEl.style.width = `${Math.min(currentProgress * 100, 100)}%`;
-
-        const currentIndex = cumulativeWeights.findIndex(w => currentProgress <= w);
-        if (currentIndex !== -1 && currentIndex !== lastIndex) {
-          lastIndex = currentIndex;
-          subtitleEl.textContent = chunks[currentIndex];
-          subtitleEl.classList.add('pop');
-          setTimeout(() => subtitleEl.classList.remove('pop'), 140);
+function speakFallbackBrowser(text) {
+    return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+            setTimeout(resolve, 3500);
+            return;
         }
-      }, 50);
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "ru-RU";
+        utter.rate = 1.05;
+        utter.pitch = 0.85;
+        utter.onend = resolve;
+        utter.onerror = () => setTimeout(resolve, 3500);
+        window.speechSynthesis.speak(utter);
+    });
+}
 
-      audioPlayer.onended = () => {
-        clearInterval(subtitleInterval);
-        progressEl.style.width = "100%";
-        // Показываем финальную фразу БЕЗ озвучки
-        subtitleEl.classList.add('outro');
-        subtitleEl.textContent = silentOutro;
-        statusText.textContent = "Финал (без озвучки). Готово!";
-        startBtn.disabled = false;
-        startBtn.textContent = "↻ ПОВТОРИТЬ";
-      };
+startBtn.addEventListener('click', async () => {
+    startBtn.disabled = true;
+    downloadBtn.style.display = "none";
+    outroOverlay.style.display = "none";
+    recordedChunks = [];
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    destStream = audioCtx.createMediaStreamDestination();
+
+    // Подготовка буферов ElevenLabs
+    statusBar.textContent = "Генерация голоса ElevenLabs...";
+    const audioBuffers = [];
+    let useFallback = false;
+
+    for (let i = 0; i < storySegments.length; i++) {
+        statusBar.textContent = `Озвучка фразы ${i + 1} из ${storySegments.length}...`;
+        try {
+            const buf = await fetchElevenLabsAudio(storySegments[i].text);
+            audioBuffers.push(buf);
+        } catch (err) {
+            console.warn("Переключение на встроенный голос браузера:", err);
+            useFallback = true;
+            break;
+        }
     }
 
-    // Резервный вариант через встроенный браузерный голос, если на ключе кончатся лимиты
-    function runFallbackSpeech() {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(spokenScript);
-      utterance.lang = 'ru-RU';
-      utterance.rate = 1.05;
+    // Запуск записи холста + звука
+    try {
+        const canvasStream = renderer.domElement.captureStream(30);
+        const combinedTracks = [
+            ...canvasStream.getVideoTracks(),
+            ...destStream.stream.getAudioTracks()
+        ];
+        const combinedStream = new MediaStream(combinedTracks);
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(blob);
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.download = 'survival_story_part1.webm';
+                a.click();
+            };
+            downloadBtn.style.display = "inline-block";
+        };
+        mediaRecorder.start();
+    } catch (e) {
+        console.warn("Запись видео не поддерживается в этом режиме:", e);
+    }
 
-      const estimatedDuration = 46 * 1000; // ~46 секунд на озвучку + 4 сек тишины в конце
-      const startTime = Date.now();
-      const totalChars = chunks.reduce((acc, str) => acc + str.length, 0);
-      let cumulativeWeights = [];
-      let sum = 0;
-      for (const c of chunks) {
-        sum += c.length;
-        cumulativeWeights.push(sum / totalChars);
-      }
+    statusBar.textContent = useFallback ? "Идет показ (встроенный голос)" : "Идет показ (ElevenLabs)";
 
-      let lastIndex = -1;
-      clearInterval(subtitleInterval);
+    // Воспроизведение истории
+    for (let i = 0; i < storySegments.length; i++) {
+        const seg = storySegments[i];
+        subtitleBox.textContent = seg.text;
+        applySceneState(seg.scene);
 
-      subtitleInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const ratio = Math.min(elapsed / estimatedDuration, 1);
-        progressEl.style.width = `${ratio * 100}%`;
-
-        const currentIndex = cumulativeWeights.findIndex(w => ratio <= w);
-        if (currentIndex !== -1 && currentIndex !== lastIndex) {
-          lastIndex = currentIndex;
-          subtitleEl.textContent = chunks[currentIndex];
+        if (!useFallback && audioBuffers[i]) {
+            await playAudioBuffer(audioBuffers[i]);
+        } else {
+            await speakFallbackBrowser(seg.text);
         }
-      }, 60);
+    }
 
-      utterance.onend = () => {
-        clearInterval(subtitleInterval);
-        progressEl.style.width = "100%";
-        subtitleEl.classList.add('outro');
-        subtitleEl.textContent = silentOutro;
+    // Финал без озвучки (как в примере)
+    subtitleBox.textContent = "";
+    outroOverlay.style.display = "flex";
+    statusBar.textContent = "Готово!";
+
+    setTimeout(() => {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
         startBtn.disabled = false;
         startBtn.textContent = "↻ ПОВТОРИТЬ";
-      };
-
-      window.speechSynthesis.speak(utterance);
-    }
-  </script>
+    }, 4500);
+});
+</script>
 </body>
 </html>
